@@ -2533,6 +2533,12 @@ mod tests {
     let mut file = File::create(&llvm_ir_file).expect("Failed to create file");
     file.write_all(ir.to_bytes()).unwrap();
 
+    // List the files in the current directory
+    let paths = fs::read_dir(".").unwrap();
+    for path in paths {
+      eprintln!("{:?}", path.unwrap().path());
+    }
+
     // Compile and execute the binary
     std::process::Command::new("clang")
       .arg("-o")
