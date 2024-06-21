@@ -2530,7 +2530,7 @@ mod tests {
     let executable_file = format!("./test{}", test_count);
 
     // Generate LLVM IR file
-    let mut file = File::create(&llvm_ir_file).unwrap();
+    let mut file = File::create(&llvm_ir_file).expect("Failed to create file");
     file.write_all(ir.to_bytes()).unwrap();
 
     // Compile and execute the binary
