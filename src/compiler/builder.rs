@@ -2523,43 +2523,31 @@ mod tests {
   // Compile the IR and assert the output matches
   fn build_and_assert(ir: LLVMString, output: &str) {
     let test_count = COUNTER.fetch_add(1, Ordering::SeqCst);
-    let llvm_ir_name = format!("test{}.ll", test_count);
-    let executable_name = format!("test{}", test_count);
+    let llvm_ir_file = format!("./test{}.ll", test_count);
+    #[cfg(target_os = "windows")]
+    let executable_file = format!("./test{}.exe", test_count);
+    #[cfg(not(target_os = "windows"))]
+    let executable_file = format!("./test{}", test_count);
 
     // Generate LLVM IR file
-    let mut file = File::create(format!("./{}", &llvm_ir_name)).unwrap();
+    let mut file = File::create(&llvm_ir_file).unwrap();
     file.write_all(ir.to_bytes()).unwrap();
 
     // Compile and execute the binary
-    #[cfg(target_os = "windows")]
     std::process::Command::new("clang")
       .arg("-o")
-      .arg(format!("{}.exe", &executable_name)) // `test1.exe`
-      .arg(&llvm_ir_name)                      // `test1.ll`
+      .arg(&executable_file) // `./test1.exe` / `./test1`
+      .arg(&llvm_ir_file)    // `test1.ll`
       .output()
       .expect("Failed to compile LLVM IR");
-    #[cfg(not(target_os = "windows"))]
-    std::process::Command::new("clang")
-      .arg("-o")
-      .arg(&executable_name) // `test1`
-      .arg(&llvm_ir_name)   // `test1.ll`
-      .output()
-      .expect("Failed to compile LLVM IR");
-    #[cfg(target_os = "windows")]
-    let test = std::process::Command::new(format!("./{}.exe", &executable_name))
-      .output()
-      .expect("Failed to run executable");
-    #[cfg(not(target_os = "windows"))]
-    let test = std::process::Command::new(format!("./{}", &executable_name))
+    let test = std::process::Command::new(&executable_file)
       .output()
       .expect("Failed to run executable");
 
     // Delete the test execution files
-    fs::remove_file(llvm_ir_name).unwrap();
+    fs::remove_file(llvm_ir_file).unwrap();
     #[cfg(target_os = "windows")]
-    fs::remove_file(format!("{}.exe", executable_name)).unwrap();
-    #[cfg(not(target_os = "windows"))]
-    fs::remove_file(executable_name).unwrap();
+    fs::remove_file(executable_file).unwrap();
 
     // Assert the output is correct
     if !test.status.success() && String::from_utf8_lossy(&test.stderr) != "" {
