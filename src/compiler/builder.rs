@@ -2707,26 +2707,24 @@ mod tests {
     }
 
     // Compile and execute the binary
-    #[cfg(target_os = "windows")]
-    let clang_output = std::process::Command::new("clang")
-      .arg("-o")
-      .arg(format!("{}.exe", &executable_file)) // `test1.exe`
-      .arg(&llvm_ir_file)                      // `test1.ll`
-      .output()
-      .expect("Failed to compile LLVM IR");
-    #[cfg(not(target_os = "windows"))]
-    // If running in github workflows use clang-18
-    let clang_output = if std::env::var("GH_WORKFLOW").is_ok() {
-      std::process::Command::new("clang-18")
+    let clang_output = if cfg!(target_os = "windows") {
+      std::process::Command::new("clang")
         .arg("-o")
-        .arg(&executable_file) // `test1`
-        .arg(&llvm_ir_file)   // `test1.ll`
+        .arg(format!("{}.exe", &executable_file)) // `test1.exe`
+        .arg(&llvm_ir_file)                      // `test1.ll`
         .output()
         .expect("Failed to compile LLVM IR")
     } else {
-      std::process::Command::new("clang")
+      // If running in GitHub build tests workflow use clang-18
+      let clang_cmd = if std::env::var("GH_WORKFLOW").is_ok() {
+        "clang-18"
+      } else {
+        "clang"
+      };
+      std::process::Command::new(clang_cmd)
         .arg("-o")
         .arg(&executable_file) // `test1`
+        .arg("-no-pie")
         .arg(&llvm_ir_file)   // `test1.ll`
         .output()
         .expect("Failed to compile LLVM IR")
