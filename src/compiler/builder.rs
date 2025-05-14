@@ -2682,6 +2682,7 @@ impl<'ctx> CodeGen<'ctx> {
 // Tests
 #[cfg(test)]
 mod tests {
+  use core::panic;
   use std::fs;
   use std::fs::File;
   use std::io::Write;
@@ -2703,12 +2704,23 @@ mod tests {
     file.write_all(ir.to_bytes()).unwrap();
 
     // Compile and execute the binary
-    std::process::Command::new("clang")
+    let clang_output = std::process::Command::new("clang")
       .arg("-o")
       .arg(&executable_file) // `./test1.exe` / `./test1`
       .arg(&llvm_ir_file)    // `test1.ll`
       .output()
-      .expect("Failed to compile LLVM IR");
+      .expect("Failed to begin clang compilation");
+
+    // Check for clang errors
+    if !clang_output.status.success() {
+      panic!(
+        "clang compilation failed for '{}' (exit code: {:?}):\nStdout: {}\nStderr: {}",
+        llvm_ir_file,
+        clang_output.status.code(),
+        String::from_utf8_lossy(&clang_output.stdout),
+        String::from_utf8_lossy(&clang_output.stderr)
+      );
+    }
 
     // List the files in the current directory
     let paths = fs::read_dir(".").unwrap();
