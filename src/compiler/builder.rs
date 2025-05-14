@@ -2721,6 +2721,16 @@ mod tests {
       } else {
         "clang"
       };
+
+      // Testing if clang-18 is available
+      let clang_check = std::process::Command::new(clang_cmd)
+        .arg("--version")
+        .output()
+        .expect(format!("Failed to execute clang for file {}", llvm_ir_file).as_str());
+      if !clang_check.status.success() {
+        panic!("clang-18 was not found in workflow container");
+      }
+
       std::process::Command::new(clang_cmd)
         .arg("-o")
         .arg(&executable_file) // `test1`
