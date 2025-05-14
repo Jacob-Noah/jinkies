@@ -22,7 +22,10 @@ jobs:
     - name: Set up clang
       run: |
         apt-get update
-        apt-get install -y --no-install-recommends clang-18
+        wget -qO llvm.sh https://apt.llvm.org/llvm.sh
+        chmod +x llvm.sh
+        sudo ./llvm.sh 18
+
         if command -v clang-18 &> /dev/null; then
           echo "clang-18 installed successfully"
         else
