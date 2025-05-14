@@ -31,7 +31,7 @@ jobs:
         fi
 
         echo "Installing other dependencies"
-        sudo apt-get install libpolly-18-dev libzstd-dev zlib1g-dev
+        sudo apt-get install libpolly-dev libpolly-18-dev libzstd-dev zlib1g-dev
 
     - name: Set rustup version
       run: rustup default stable
