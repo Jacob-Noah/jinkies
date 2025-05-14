@@ -2713,7 +2713,7 @@ mod tests {
         .arg(format!("{}.exe", &executable_file)) // `test1.exe`
         .arg(&llvm_ir_file)                      // `test1.ll`
         .output()
-        .expect("Failed to compile LLVM IR")
+        .expect(format!("Failed to execute clang for file {}", llvm_ir_file).as_str())
     } else {
       // If running in GitHub build tests workflow use clang-18
       let clang_cmd = if std::env::var("GH_WORKFLOW").is_ok() {
@@ -2727,7 +2727,7 @@ mod tests {
         .arg("-no-pie")
         .arg(&llvm_ir_file)   // `test1.ll`
         .output()
-        .expect("Failed to compile LLVM IR")
+        .expect(format!("Failed to execute clang for file {}", llvm_ir_file).as_str())
     };
 
     // Check for clang errors
