@@ -18,6 +18,11 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Set up clang
+      run: |
+        apt-get update
+        apt-get install -y --no-install-recommends clang
+
     - name: Set rustup version
       run: rustup default stable
     
