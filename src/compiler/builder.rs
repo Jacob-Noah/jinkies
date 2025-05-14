@@ -2693,8 +2693,8 @@ mod tests {
   // Compile the IR and assert the output matches
   fn build_and_assert(ir: LLVMString, output: &str) {
     let test_count = COUNTER.fetch_add(1, Ordering::SeqCst);
-    let llvm_ir_file = format!("test{}.ll", test_count);
-    let executable_file = format!("test{}", test_count);
+    let llvm_ir_file = format!("./test{}.ll", test_count);
+    let executable_file = format!("./test{}", test_count);
 
     // Generate LLVM IR file
     let mut file = File::create(&llvm_ir_file).expect("Failed to create file");
