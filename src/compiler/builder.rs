@@ -2700,6 +2700,12 @@ mod tests {
     let mut file = File::create(&llvm_ir_file).expect("Failed to create file");
     file.write_all(ir.to_bytes()).unwrap();
 
+    // List the files in the current directory
+    let paths = fs::read_dir(".").unwrap();
+    for path in paths {
+      eprintln!("{:?}", path.unwrap().path());
+    }
+
     // Compile and execute the binary
     #[cfg(target_os = "windows")]
     let clang_output = std::process::Command::new("clang")
@@ -2735,12 +2741,6 @@ mod tests {
         String::from_utf8_lossy(&clang_output.stdout),
         String::from_utf8_lossy(&clang_output.stderr)
       );
-    }
-
-    // List the files in the current directory
-    let paths = fs::read_dir(".").unwrap();
-    for path in paths {
-      eprintln!("{:?}", path.unwrap().path());
     }
 
     let test = std::process::Command::new(&executable_file)
