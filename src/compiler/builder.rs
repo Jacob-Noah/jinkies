@@ -2693,23 +2693,38 @@ mod tests {
   // Compile the IR and assert the output matches
   fn build_and_assert(ir: LLVMString, output: &str) {
     let test_count = COUNTER.fetch_add(1, Ordering::SeqCst);
-    let llvm_ir_file = format!("./test{}.ll", test_count);
-    #[cfg(target_os = "windows")]
-    let executable_file = format!("./test{}.exe", test_count);
-    #[cfg(not(target_os = "windows"))]
-    let executable_file = format!("./test{}", test_count);
+    let llvm_ir_file = format!("test{}.ll", test_count);
+    let executable_file = format!("test{}", test_count);
 
     // Generate LLVM IR file
     let mut file = File::create(&llvm_ir_file).expect("Failed to create file");
     file.write_all(ir.to_bytes()).unwrap();
 
     // Compile and execute the binary
+    #[cfg(target_os = "windows")]
     let clang_output = std::process::Command::new("clang")
       .arg("-o")
-      .arg(&executable_file) // `./test1.exe` / `./test1`
-      .arg(&llvm_ir_file)    // `test1.ll`
+      .arg(format!("{}.exe", &executable_file)) // `test1.exe`
+      .arg(&llvm_ir_file)                      // `test1.ll`
       .output()
-      .expect("Failed to begin clang compilation");
+      .expect("Failed to compile LLVM IR");
+    #[cfg(not(target_os = "windows"))]
+    // If running in github workflows use clang-18
+    let clang_output = if std::env::var("GH_WORKFLOW").is_ok() {
+      std::process::Command::new("clang-18")
+        .arg("-o")
+        .arg(&executable_file) // `test1`
+        .arg(&llvm_ir_file)   // `test1.ll`
+        .output()
+        .expect("Failed to compile LLVM IR")
+    } else {
+      std::process::Command::new("clang")
+        .arg("-o")
+        .arg(&executable_file) // `test1`
+        .arg(&llvm_ir_file)   // `test1.ll`
+        .output()
+        .expect("Failed to compile LLVM IR")
+    };
 
     // Check for clang errors
     if !clang_output.status.success() {

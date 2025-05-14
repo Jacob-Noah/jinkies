@@ -8,6 +8,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  GH_WORKFLOW: true
 
 jobs:
   build:
@@ -21,7 +22,7 @@ jobs:
     - name: Set up clang
       run: |
         apt-get update
-        apt-get install -y --no-install-recommends clang
+        apt-get install -y --no-install-recommends clang-18
 
     - name: Set rustup version
       run: rustup default stable
