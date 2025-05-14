@@ -2717,19 +2717,15 @@ mod tests {
     } else {
       // If running in GitHub build tests workflow use clang-18
       let clang_cmd = if std::env::var("GH_WORKFLOW").is_ok() {
+        std::process::Command::new("clang-18")
+        .arg("--version")
+        .output()
+        .expect("clang-18 is not available in the workflow environment");
+
         "clang-18"
       } else {
         "clang"
       };
-
-      // Testing if clang-18 is available
-      let clang_check = std::process::Command::new(clang_cmd)
-        .arg("--version")
-        .output()
-        .expect(format!("Failed to execute clang for file {}", llvm_ir_file).as_str());
-      if !clang_check.status.success() {
-        panic!("clang-18 was not found in workflow container");
-      }
 
       std::process::Command::new(clang_cmd)
         .arg("-o")
