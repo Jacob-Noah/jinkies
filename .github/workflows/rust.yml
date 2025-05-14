@@ -18,10 +18,10 @@ jobs:
 
     - name: Get llvm-18 and clang-18
       run: |
-        apt-get update
+        sudo apt-get update
         wget -qO llvm.sh https://apt.llvm.org/llvm.sh
         chmod +x llvm.sh
-        ./llvm.sh 18
+        sudo ./llvm.sh 18
 
         if command -v llvm-config-18 &> /dev/null && command -v clang-18 &> /dev/null; then
           echo "llvm-18 and clang-18 installed successfully"
