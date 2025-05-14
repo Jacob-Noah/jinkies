@@ -30,6 +30,9 @@ jobs:
           exit 1
         fi
 
+        echo "Installing libpolly-18-dev"
+        sudo ap-get install libpolly-18-dev
+
     - name: Set rustup version
       run: rustup default stable
     
